@@ -12,12 +12,23 @@ public class Actions {
 		}
 	}
 	
-	public static void kill() {
-		Main.cout("You murdered some one!");
+	public static void fight() {
+		if(!Main.player.getCurrentRoom().enemies.isEmpty()) {
+			Main.cout("You started fighting the closest enemy. All commands disabled exept 'Attack'");
+			Main.player.isBatteling = true;
+			Main.player.currentEnemy = Main.player.getCurrentRoom().enemies.get(0);
+		} else {
+			Main.cout("Could not find a enemy in this room.");
+		}
+	}
+	
+	public static void stats() {
+		Main.cout("---Player Stats---");
+		Main.cout("Health: " + Main.player.health);
 	}
 	
 	public static void inventory() {
-		if(Main.player.inventory.size()  > 0) {
+		if(Main.player.inventory.size() > 0) {
 			Main.cout("You have the following items in your backpack: ");
 			for(int i = 0; i < Main.player.inventory.size(); i++) {
 				Main.cout("	" + (i + 1) + ". " +Main.player.inventory.get(i).name);
@@ -51,13 +62,22 @@ public class Actions {
 	}
 	
 	public static void search() {
-		if(Main.player.getCurrentRoom().items.size()  > 0) {
+		if(!Main.player.getCurrentRoom().items.isEmpty()) {
 			Main.cout("You found the following items: ");
 			for(int i = 0; i < Main.player.getCurrentRoom().items.size(); i++) {
-				Main.cout("	" + (i + 1) + ". " + Main.player.getCurrentRoom().items.get(i).name + ", " + Main.player.getCurrentRoom().items.get(i).description);
+				Main.cout("	" + (i + 1) + ". " + Main.player.getCurrentRoom().items.get(i).name);
 			}
+			
 		} else
 			Main.cout("No items found.");
+		
+		if(!Main.player.getCurrentRoom().enemies.isEmpty()) {
+			Main.cout("You found the following enemies: ");
+			for(int i = 0; i < Main.player.getCurrentRoom().enemies.size(); i++) {
+				Main.cout("	" + (i + 1) + ". " + Main.player.getCurrentRoom().enemies.get(i).name);
+			}
+		} else
+			Main.cout("No enemies found.");
 	}
 	
 	public static void goTo(String direction) {

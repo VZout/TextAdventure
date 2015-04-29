@@ -86,13 +86,14 @@ public class Main extends Application {
 	public void initCommands()  {
 		try {
 			commands.add(new Command("Help", "?", Actions.class.getDeclaredMethod("help")));
-			commands.add(new Command("Murder", Actions.class.getDeclaredMethod("kill")));
+			commands.add(new Command("Fight", Actions.class.getDeclaredMethod("fight")));
 			commands.add(new Command("Inventory", "Inv", Actions.class.getDeclaredMethod("inventory")));
 			commands.add(new Command("look", Actions.class.getMethod("look")));
 			commands.add(new Command("search", Actions.class.getMethod("search")));
 			commands.add(new Command(true, "take", Actions.class.getMethod("take", String.class)));
 			commands.add(new Command(true, "go", Actions.class.getMethod("goTo", String.class)));
 			commands.add(new Command(true, "use", Actions.class.getMethod("use", String.class)));
+			commands.add(new Command("stats", Actions.class.getMethod("stats")));
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {
@@ -101,21 +102,46 @@ public class Main extends Application {
 	}
 	
 	public void proccesCommand(final String command) {
-		for(int i = 0; i < commands.size(); i++) {
-			if(	commands.get(i).multiCommand && command.toLowerCase().startsWith(commands.get(i).name.toLowerCase())) {
-					commands.get(i).performAction(command);
+		if(!player.isBatteling) {
+			for(int i = 0; i < commands.size(); i++) {
+				if(	commands.get(i).multiCommand && command.toLowerCase().startsWith(commands.get(i).name.toLowerCase())) {
+						commands.get(i).performAction(command);
+						return;
+				}
+				
+				else if(commands.get(i).name.equalsIgnoreCase(command) && !commands.get(i).multiCommand) {
+					commands.get(i).performAction();
 					return;
+				} else if(commands.get(i).altName.equalsIgnoreCase(command) && !commands.get(i).multiCommand) {
+					commands.get(i).performAction();
+					return;
+				}
 			}
-			
-			else if(commands.get(i).name.equalsIgnoreCase(command) && !commands.get(i).multiCommand) {
-				commands.get(i).performAction();
-				return;
-			} else if(commands.get(i).altName.equalsIgnoreCase(command) && !commands.get(i).multiCommand) {
-				commands.get(i).performAction();
-				return;
+			cout("Unknown Command. Type '?' for a list of commands.");
+		} else {
+			if(command.equalsIgnoreCase("attack")) {
+				player.currentEnemy.health -= player.attackPower;
+				player.health -= player.currentEnemy.damage;
+				cout("You damaged " + player.currentEnemy.name + " for " + player.currentEnemy.damage + " damage");
+				cout("Enemy Health: " + player.currentEnemy.health);
+				cout("Player Health " + player.health);
+				if(player.currentEnemy.health <= 0) {
+					player.getCurrentRoom().removeEnemy(player.currentEnemy);
+					player.currentEnemy = null;
+					player.isBatteling = false;
+					cout("Enemy Defeated!");
+				}
+				
+				if(player.health <= 0) {
+					cout("You are defeated");
+					player.currentEnemy = null;
+					player.isBatteling = false;
+					System.exit(0);
+				}
+			} else {
+				cout("Wrong command. Use 'Attack' to attack the current enemy");
 			}
 		}
-		cout("Unknown Command. Type '?' for a list of commands.");
 	}
 	
 	public static void cout(String text) {
@@ -155,6 +181,9 @@ public class Main extends Application {
 		try {
 			Room garden = new Room("Garden", "A buetefull place with flowers.", 0, 0, "http://c2.tuid.nl/i/150x150/smart/filters:no_upscale()/http://tuintuin.nl/uploads/142383/8943-garden-tours-great-dixter-kent-sussex-17-1024x768.jpg");
 			garden.addItem(new Item("Spoon", "That is slightly bend.", ItemActions.class.getDeclaredMethod("spoon")));
+			garden.addEnemy(new Enemy("Derpster", 100, 10));
+			garden.addEnemy(new Enemy("xXSexyBEastXx", 100, 10));
+			garden.addEnemy(new Enemy("Rick Teerling", 100, 10));
 			rooms.add(garden);
 			
 			Room crematorium = new Room("Crematorium", "It smells like death in here...", 0, 1, "http://www.vrijheidrondomsterven.nl/wp-content/uploads/2010/09/zoomstede_crematorium_025_31d4f2-150x150.jpg");
