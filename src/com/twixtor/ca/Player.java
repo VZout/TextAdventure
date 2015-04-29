@@ -23,25 +23,28 @@ public class Player {
 	}
 	
 	public void move(int x, int y) {
-		
-		this.x += x;
-		this.y += y;
-		
-		String newPosition = "UNKNOWN";
-		
-		for(int i = 0; i < Main.rooms.size(); i++) {
-			if(Main.rooms.get(i).x == Main.player.x && Main.rooms.get(i).y == Main.player.y) {
-				newPosition = Main.rooms.get(i).name;
+		if(Main.player.getCurrentRoom().enemies.isEmpty()) {
+			this.x += x;
+			this.y += y;
+			
+			String newPosition = "UNKNOWN";
+			
+			for(int i = 0; i < Main.rooms.size(); i++) {
+				if(Main.rooms.get(i).x == Main.player.x && Main.rooms.get(i).y == Main.player.y) {
+					newPosition = Main.rooms.get(i).name;
+				}
 			}
-		}
-		
-		if(!newPosition.equalsIgnoreCase("unknown")) {
-			Main.updateImage();
-			Main.cout("You moved to the " + newPosition);
+			
+			if(!newPosition.equalsIgnoreCase("unknown")) {
+				Main.updateImage();
+				Main.cout("You moved to the " + newPosition);
+			} else {
+				Main.cout("You cant move in that direction!");
+				this.x -= x;
+				this.y -=y;
+			}
 		} else {
-			Main.cout("You cant move in that direction!");
-			this.x -= x;
-			this.y -=y;
+			Main.cout("You have to kill all enemies before you can move to the next room!");
 		}
 	}
 	
